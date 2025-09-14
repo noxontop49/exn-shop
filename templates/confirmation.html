@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="produit-detail">
-  <h1>✅ Commande confirmée</h1>
-  <p>Votre code commande est : <b>{{ code }}</b></p>
-  <p>Total : {{ total }} €</p>
-  <p>💡 Conservez ce code et envoyez-le à l’admin.</p>
+<div class="confirmation">
+  <h1 class="page-title">✅ Commande validée</h1>
+  <p>Merci pour votre achat !</p>
+  <p>Votre code de commande est :</p>
+  <h2 class="code">{{ code }}</h2>
+  <h3>Total : <span class="prix">{{ total }} €</span></h3>
   <a href="/" class="btn">Retour à la boutique</a>
 </div>
 {% endblock %}

@@ -1,10 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="produit-detail">
-  <img src="{{ article.image or url_for('static', filename='uploads/default.png') }}" class="produit-img" alt="{{ article.nom }}">
-  <h1>{{ article.nom }}</h1>
-  <p class="desc">{{ article.description }}</p>
-  <p class="prix">{{ article.prix }} €</p>
-  <a href="{{ url_for('ajouter_panier', id=article.id) }}" class="btn">Ajouter au panier</a>
+<div class="produit-page">
+  <div class="produit-card">
+    {% if article.image %}
+      <img src="{{ article.image }}" alt="{{ article.nom }}">
+    {% endif %}
+    <div class="produit-body">
+      <h2>{{ article.nom }}</h2>
+      <p class="prix">{{ article.prix }} €</p>
+      {% if article.description %}
+        <p>{{ article.description }}</p>
+      {% endif %}
+      <a href="{{ url_for('ajouter_panier', id=article.id) }}" class="btn">Ajouter au panier</a>
+    </div>
+  </div>
 </div>
 {% endblock %}

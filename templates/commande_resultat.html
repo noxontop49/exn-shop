@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="produit-detail">
+<h1 class="page-title">📦 Résultat de commande</h1>
+
+<div class="commande-box">
   {% if commande %}
-    <h1>📦 Commande trouvée</h1>
-    <p><b>Code :</b> {{ commande.code }}</p>
-    <p><b>Articles :</b> {{ commande.contenu }}</p>
-    <p><b>Total :</b> {{ commande.total }} €</p>
+    <h2>Commande trouvée</h2>
+    <p><strong>Code :</strong> {{ commande.code }}</p>
+    <p><strong>Produits :</strong> {{ commande.contenu }}</p>
+    <p><strong>Total :</strong> <span class="prix">{{ commande.total }} €</span></p>
   {% else %}
-    <h1>❌ Commande introuvable</h1>
-    <p>Aucune commande ne correspond à ce code.</p>
+    <p>Aucune commande trouvée avec ce code.</p>
   {% endif %}
 </div>
 {% endblock %}

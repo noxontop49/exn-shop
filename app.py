@@ -12,12 +12,18 @@ app.config["UPLOAD_FOLDER"] = "static/images"
 db = SQLAlchemy(app)
 
 # --- Modèles ---
+class Categorie(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nom = db.Column(db.String(100), nullable=False, unique=True)
+    articles = db.relationship("Article", backref="categorie", lazy=True)
+
 class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100), nullable=False)
     prix = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(200), nullable=True)
+    categorie_id = db.Column(db.Integer, db.ForeignKey("categorie.id"), nullable=True)
 
 class Commande(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,33 +33,38 @@ class Commande(db.Model):
 
 class Theme(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    primary = db.Column(db.String(20), default="#e0112b")
-    secondary = db.Column(db.String(20), default="#111")
+    primary = db.Column(db.String(20), default="#ff003c")
+    secondary = db.Column(db.String(20), default="#0a0a0a")
 
 # --- Création BDD ---
 if not os.path.exists("shop.db"):
     with app.app_context():
         db.create_all()
-        db.session.add(Theme(primary="#e0112b", secondary="#111"))
+        db.session.add(Theme(primary="#ff003c", secondary="#0a0a0a"))
         db.session.commit()
 
 # --- Admin ---
 ADMIN_USER = "getpost"
 ADMIN_PASS = "tonght67"
 
-# --- Fonctions utilitaires ---
+# --- Utils ---
 def generer_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 def get_theme():
-    theme = Theme.query.first()
-    return {"primary": theme.primary, "secondary": theme.secondary} if theme else {"primary": "#e0112b", "secondary": "#111"}
+    t = Theme.query.first()
+    return {"primary": t.primary, "secondary": t.secondary} if t else {"primary": "#ff003c", "secondary": "#0a0a0a"}
 
 # --- Routes ---
 @app.route("/")
-def shop():
-    articles = Article.query.all()
-    return render_template("shop.html", articles=articles, couleurs=get_theme())
+def home():
+    categories = Categorie.query.all()
+    return render_template("categories.html", categories=categories, couleurs=get_theme())
+
+@app.route("/categorie/<int:id>")
+def categorie(id):
+    cat = Categorie.query.get_or_404(id)
+    return render_template("shop.html", categorie=cat, couleurs=get_theme())
 
 @app.route("/produit/<int:id>")
 def produit(id):
@@ -72,10 +83,10 @@ def panier():
     panier = session.get("panier", [])
     items, total = [], 0
     for art_id in panier:
-        article = Article.query.get(art_id)
-        if article:
-            items.append(article)
-            total += article.prix
+        a = Article.query.get(art_id)
+        if a:
+            items.append(a)
+            total += a.prix
 
     if request.method == "POST" and items:
         code = generer_code()
@@ -98,7 +109,7 @@ def login():
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
-    return redirect(url_for("shop"))
+    return redirect(url_for("home"))
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
@@ -110,24 +121,23 @@ def admin():
             nom = request.form["nom"]
             prix = float(request.form["prix"])
             desc = request.form.get("description")
+            categorie_id = request.form.get("categorie_id") or None
 
             image_file = request.files.get("image")
             image_filename = None
-
             if image_file and image_file.filename != "":
                 try:
                     filename = secure_filename(image_file.filename)
-                    # Vérifie que le dossier existe
                     if not os.path.exists(app.config["UPLOAD_FOLDER"]):
                         os.makedirs(app.config["UPLOAD_FOLDER"])
-                    # Sauvegarde l'image
                     image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
                     image_file.save(image_path)
                     image_filename = f"/static/images/{filename}"
                 except Exception as e:
-                    print(f"[ERREUR UPLOAD] Impossible de sauvegarder l'image : {e}")
+                    print(f"[ERREUR UPLOAD] {e}")
 
-            db.session.add(Article(nom=nom, prix=prix, description=desc, image=image_filename))
+            article = Article(nom=nom, prix=prix, description=desc, image=image_filename, categorie_id=categorie_id)
+            db.session.add(article)
             db.session.commit()
 
         elif "supprimer" in request.form:
@@ -135,13 +145,30 @@ def admin():
             Article.query.filter_by(id=id_article).delete()
             db.session.commit()
 
-        elif "changer_couleurs" in request.form:
-            theme = Theme.query.first()
-            theme.primary = request.form["primary"]
-            theme.secondary = request.form["secondary"]
+        elif "ajouter_categorie" in request.form:
+            nom_cat = request.form["categorie_nom"].strip()
+            if nom_cat:
+                db.session.add(Categorie(nom=nom_cat))
+                db.session.commit()
+
+        elif "supprimer_categorie" in request.form:
+            id_cat = int(request.form["supprimer_categorie"])
+            Categorie.query.filter_by(id=id_cat).delete()
             db.session.commit()
 
-    return render_template("admin.html", articles=Article.query.all(), commandes=Commande.query.all(), couleurs=get_theme())
+        elif "changer_couleurs" in request.form:
+            t = Theme.query.first()
+            t.primary = request.form["primary"]
+            t.secondary = request.form["secondary"]
+            db.session.commit()
+
+    return render_template(
+        "admin.html",
+        articles=Article.query.all(),
+        categories=Categorie.query.all(),
+        commandes=Commande.query.all(),
+        couleurs=get_theme()
+    )
 
 @app.route("/commande", methods=["POST"])
 def commande():

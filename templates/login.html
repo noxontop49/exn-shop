@@ -1,17 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="login-container">
-  <div class="login-card">
-    <h1>Connexion Admin</h1>
-    <form method="POST" class="form">
-      <div class="input-group">
-        <input type="text" name="username" placeholder="Identifiant" required>
-      </div>
-      <div class="input-group">
-        <input type="password" name="password" placeholder="Mot de passe" required>
-      </div>
-      <button type="submit" class="btn">Se connecter</button>
-    </form>
-  </div>
+<h1 class="page-title">🔑 Connexion Admin</h1>
+
+<div class="login-box">
+  <form method="POST" class="form">
+    <input type="text" name="username" placeholder="Identifiant" required>
+    <input type="password" name="password" placeholder="Mot de passe" required>
+    <button type="submit" class="btn">Connexion</button>
+  </form>
 </div>
 {% endblock %}
+

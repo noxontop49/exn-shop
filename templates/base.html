@@ -4,88 +4,28 @@
   <meta charset="UTF-8">
   <title>EXN Shop</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <style>
-    :root {
-      --primary: {{ couleurs.primary }};
-      --secondary: {{ couleurs.secondary }};
-    }
-  </style>
 </head>
 <body>
-  <canvas id="stars"></canvas>
-  <canvas id="constellations"></canvas>
-  <div class="background-overlay"></div>
-
-  <nav class="navbar">
-    <div class="logo">EXN<span>Shop</span></div>
-    <div>
-      <a href="/">Boutique</a>
+  <header>
+    <h1 class="logo">EXN <span>Shop</span></h1>
+    <nav>
+      <a href="/">Catégories</a>
       <a href="/panier">Panier</a>
       {% if session.get("admin") %}
-      <a href="/admin">Admin</a>
-      <a href="/logout">Déconnexion</a>
+        <a href="/admin">Admin</a>
+        <a href="/logout">Déconnexion</a>
       {% else %}
-      <a href="/login">Admin</a>
+        <a href="/login">Connexion</a>
       {% endif %}
-    </div>
-  </nav>
+    </nav>
+  </header>
 
   <main>
     {% block content %}{% endblock %}
   </main>
-
-  <!-- Script constellations -->
-  <script>
-    const starsCanvas = document.getElementById('stars');
-    const ctxStars = starsCanvas.getContext('2d');
-    const constCanvas = document.getElementById('constellations');
-    const ctxConst = constCanvas.getContext('2d');
-    starsCanvas.width = constCanvas.width = window.innerWidth;
-    starsCanvas.height = constCanvas.height = window.innerHeight;
-
-    let stars = [];
-    for(let i=0; i<120; i++){
-      stars.push({
-        x: Math.random()*starsCanvas.width,
-        y: Math.random()*starsCanvas.height,
-        r: Math.random()*2+1,
-        dx: (Math.random()-0.5)*0.5,
-        dy: (Math.random()-0.5)*0.5
-      });
-    }
-
-    function animateStars(){
-      ctxStars.clearRect(0,0,starsCanvas.width,starsCanvas.height);
-      ctxConst.clearRect(0,0,constCanvas.width,constCanvas.height);
-
-      for(let i=0;i<stars.length;i++){
-        let s=stars[i];
-        s.x+=s.dx; s.y+=s.dy;
-        if(s.x<0||s.x>starsCanvas.width) s.dx*=-1;
-        if(s.y<0||s.y>starsCanvas.height) s.dy*=-1;
-
-        ctxStars.beginPath();
-        ctxStars.arc(s.x,s.y,s.r,0,Math.PI*2);
-        ctxStars.fillStyle="white";
-        ctxStars.fill();
-
-        for(let j=i+1;j<stars.length;j++){
-          let s2=stars[j];
-          let dist = Math.hypot(s.x-s2.x, s.y-s2.y);
-          if(dist<120){
-            ctxConst.beginPath();
-            ctxConst.moveTo(s.x,s.y);
-            ctxConst.lineTo(s2.x,s2.y);
-            ctxConst.strokeStyle="rgba(255,255,255,0.15)";
-            ctxConst.stroke();
-          }
-        }
-      }
-      requestAnimationFrame(animateStars);
-    }
-    animateStars();
-  </script>
 </body>
 </html>
+
+
 
 

@@ -1,17 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>🛒 Votre Panier</h1>
-<ul>
-  {% for article in items %}
-  <li>{{ article.nom }} - {{ article.prix }} €</li>
-  {% endfor %}
-</ul>
-<p><strong>Total : {{ total }} €</strong></p>
-{% if items %}
-<form method="POST">
-  <button type="submit" class="btn">Valider la commande</button>
-</form>
-{% else %}
-<p>Votre panier est vide.</p>
-{% endif %}
+<h1 class="page-title">🛒 Mon Panier</h1>
+
+<div class="panier-box">
+  {% if items %}
+    <ul>
+      {% for article in items %}
+      <li>
+        <span>{{ article.nom }}</span>
+        <span class="prix">{{ article.prix }} €</span>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <h3>Total : <span class="prix">{{ total }} €</span></h3>
+
+    <form method="POST">
+      <button type="submit" class="btn">Valider la commande</button>
+    </form>
+  {% else %}
+    <p>Votre panier est vide.</p>
+  {% endif %}
+</div>
 {% endblock %}
+

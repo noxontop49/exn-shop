@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="page-title">Nos Articles</h1>
+<h1 class="page-title">{{ categorie.nom }}</h1>
+
 <div class="grid">
-  {% for article in articles %}
-  <a href="{{ url_for('produit', id=article.id) }}" class="card">
-    <img src="{{ article.image or url_for('static', filename='uploads/default.png') }}" alt="{{ article.nom }}">
+  {% for article in categorie.articles %}
+  <div class="card">
+    {% if article.image %}
+      <img src="{{ article.image }}" alt="{{ article.nom }}">
+    {% endif %}
     <div class="card-body">
       <h3>{{ article.nom }}</h3>
       <p class="prix">{{ article.prix }} €</p>
+      <a href="{{ url_for('ajouter_panier', id=article.id) }}" class="btn">Ajouter au panier</a>
     </div>
-  </a>
+  </div>
   {% else %}
-  <p>Aucun produit disponible.</p>
+    <p>Aucun produit dans cette catégorie.</p>
   {% endfor %}
 </div>
 {% endblock %}
