@@ -113,11 +113,19 @@ def admin():
 
             image_file = request.files.get("image")
             image_filename = None
+
             if image_file and image_file.filename != "":
-                filename = secure_filename(image_file.filename)
-                image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-                image_file.save(image_path)
-                image_filename = f"/static/images/{filename}"
+                try:
+                    filename = secure_filename(image_file.filename)
+                    # Vérifie que le dossier existe
+                    if not os.path.exists(app.config["UPLOAD_FOLDER"]):
+                        os.makedirs(app.config["UPLOAD_FOLDER"])
+                    # Sauvegarde l'image
+                    image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+                    image_file.save(image_path)
+                    image_filename = f"/static/images/{filename}"
+                except Exception as e:
+                    print(f"[ERREUR UPLOAD] Impossible de sauvegarder l'image : {e}")
 
             db.session.add(Article(nom=nom, prix=prix, description=desc, image=image_filename))
             db.session.commit()
@@ -145,6 +153,7 @@ if __name__ == "__main__":
     if not os.path.exists(app.config["UPLOAD_FOLDER"]):
         os.makedirs(app.config["UPLOAD_FOLDER"])
     app.run(debug=True)
+
 
 
 
