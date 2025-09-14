@@ -41,8 +41,8 @@ def generer_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 # --- Config admin ---
-ADMIN_USER = "admin"
-ADMIN_PASS = "password"
+ADMIN_USER = "getpost"
+ADMIN_PASS = "tonght67"
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
