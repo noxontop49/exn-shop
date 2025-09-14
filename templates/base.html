@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{ title if title else "EXN SHOP" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">EXN <span>SHOP</span></div>
+    <nav>
+      <a href="{{ url_for('shop') }}">Boutique</a>
+      <a href="{{ url_for('panier') }}">Panier</a>
+      <a href="{{ url_for('admin') }}">Admin</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

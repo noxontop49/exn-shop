@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">⚙️ EXN SHOP — Panel Admin</h1>
+
+<section class="panel">
+  <h2>Ajouter un article</h2>
+  <form method="post" enctype="multipart/form-data" class="form grid2">
+    <input type="text" name="nom" placeholder="Nom" required>
+    <input type="number" step="0.01" name="prix" placeholder="Prix (€)" required>
+    <input type="file" name="image" accept="image/*">
+    <button type="submit" name="ajouter" class="btn">Ajouter</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>Articles existants</h2>
+  <table class="table">
+    <thead>
+      <tr><th>Visuel</th><th>Nom</th><th>Prix</th><th class="right">Action</th></tr>
+    </thead>
+    <tbody>
+      {% for id, nom, prix, image in articles %}
+      <tr>
+        <td class="thumb">
+          {% if image %}
+            <img src="{{ url_for('static', filename='uploads/' ~ image) }}" alt="{{ nom }}">
+          {% else %}
+            <img src="{{ url_for('static', filename='img/placeholder.svg') }}" alt="{{ nom }}">
+          {% endif %}
+        </td>
+        <td>{{ nom }}</td>
+        <td>{{ "%.2f"|format(prix) }} €</td>
+        <td class="right">
+          <form method="post" style="display:inline;">
+            <button type="submit" name="supprimer" value="{{ id }}" class="btn danger">Supprimer</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="panel">
+  <h2>Rechercher une commande</h2>
+  <form method="post" class="form">
+    <input type="text" name="code" placeholder="Code commande">
+    <button type="submit" name="chercher" class="btn">Chercher</button>
+  </form>
+
+  {% if commande %}
+  <div class="commande">
+    <div><b>Code :</b> {{ commande[1] }}</div>
+    <div><b>Articles :</b> {{ commande[2] }}</div>
+    <div><b>Total :</b> {{ "%.2f"|format(commande[3]) }} €</div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
+
