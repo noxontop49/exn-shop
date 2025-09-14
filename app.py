@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 import os, random, string
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "supersecret"
 
 # --- Config BDD ---
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///shop.db"
+app.config["UPLOAD_FOLDER"] = "static/images"
 db = SQLAlchemy(app)
 
 # --- Modèles ---
@@ -108,13 +110,23 @@ def admin():
             nom = request.form["nom"]
             prix = float(request.form["prix"])
             desc = request.form.get("description")
-            image = request.form.get("image")
-            db.session.add(Article(nom=nom, prix=prix, description=desc, image=image))
+
+            image_file = request.files.get("image")
+            image_filename = None
+            if image_file and image_file.filename != "":
+                filename = secure_filename(image_file.filename)
+                image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+                image_file.save(image_path)
+                image_filename = f"/static/images/{filename}"
+
+            db.session.add(Article(nom=nom, prix=prix, description=desc, image=image_filename))
             db.session.commit()
+
         elif "supprimer" in request.form:
             id_article = int(request.form["supprimer"])
             Article.query.filter_by(id=id_article).delete()
             db.session.commit()
+
         elif "changer_couleurs" in request.form:
             theme = Theme.query.first()
             theme.primary = request.form["primary"]
@@ -130,6 +142,10 @@ def commande():
     return render_template("commande_resultat.html", commande=commande, couleurs=get_theme())
 
 if __name__ == "__main__":
+    if not os.path.exists(app.config["UPLOAD_FOLDER"]):
+        os.makedirs(app.config["UPLOAD_FOLDER"])
     app.run(debug=True)
+
+
 
 
