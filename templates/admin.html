@@ -1,37 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="page-title">⚙️ EXN SHOP — Panel Admin</h1>
+<h1 class="page-title">Panel Admin</h1>
 
-<section class="panel">
-  <h2>Ajouter un article</h2>
-  <form method="post" enctype="multipart/form-data" class="form grid2">
+<!-- Formulaire ajout produit -->
+<section class="admin-section">
+  <h2>➕ Ajouter un article</h2>
+  <form method="post" enctype="multipart/form-data" class="form grid1">
     <input type="text" name="nom" placeholder="Nom" required>
-    <input type="number" step="0.01" name="prix" placeholder="Prix (€)" required>
-    <input type="file" name="image" accept="image/*">
+    <input type="number" name="prix" placeholder="Prix (€)" step="0.01" required>
+    <textarea name="description" placeholder="Description du produit"></textarea>
+    <input type="file" name="image">
     <button type="submit" name="ajouter" class="btn">Ajouter</button>
   </form>
 </section>
 
-<section class="panel">
-  <h2>Articles existants</h2>
+<!-- Changer couleurs -->
+<section class="admin-section">
+  <h2>🎨 Paramètres de style</h2>
+  <form method="post" class="form grid2">
+    <label>Couleur principale</label>
+    <input type="color" name="primary_color" value="{{ colors[0] }}">
+    <label>Couleur secondaire</label>
+    <input type="color" name="secondary_color" value="{{ colors[1] }}">
+    <button type="submit" name="changer_couleurs" class="btn">Mettre à jour</button>
+  </form>
+</section>
+
+<!-- Liste des articles -->
+<section class="admin-section">
+  <h2>📦 Articles existants</h2>
   <table class="table">
-    <thead>
-      <tr><th>Visuel</th><th>Nom</th><th>Prix</th><th class="right">Action</th></tr>
-    </thead>
+    <thead><tr><th>Nom</th><th>Prix</th><th>Action</th></tr></thead>
     <tbody>
-      {% for id, nom, prix, image in articles %}
+      {% for id, nom, prix, description, image in articles %}
       <tr>
-        <td class="thumb">
-          {% if image %}
-            <img src="{{ url_for('static', filename='uploads/' ~ image) }}" alt="{{ nom }}">
-          {% else %}
-            <img src="{{ url_for('static', filename='img/placeholder.svg') }}" alt="{{ nom }}">
-          {% endif %}
-        </td>
         <td>{{ nom }}</td>
         <td>{{ "%.2f"|format(prix) }} €</td>
-        <td class="right">
-          <form method="post" style="display:inline;">
+        <td>
+          <form method="post">
             <button type="submit" name="supprimer" value="{{ id }}" class="btn danger">Supprimer</button>
           </form>
         </td>
@@ -41,20 +47,19 @@
   </table>
 </section>
 
-<section class="panel">
-  <h2>Rechercher une commande</h2>
-  <form method="post" class="form">
-    <input type="text" name="code" placeholder="Code commande">
-    <button type="submit" name="chercher" class="btn">Chercher</button>
+<!-- Recherche commande -->
+<section class="admin-section">
+  <h2>🔎 Rechercher une commande</h2>
+  <form method="post" class="form grid1">
+    <input type="text" name="code" placeholder="Code commande" required>
+    <button type="submit" name="chercher" class="btn">Rechercher</button>
   </form>
-
   {% if commande %}
-  <div class="commande">
-    <div><b>Code :</b> {{ commande[1] }}</div>
-    <div><b>Articles :</b> {{ commande[2] }}</div>
-    <div><b>Total :</b> {{ "%.2f"|format(commande[3]) }} €</div>
+  <div class="commande-box">
+    <p><b>Code :</b> {{ commande[1] }}</p>
+    <p><b>Contenu :</b> {{ commande[2] }}</p>
+    <p><b>Total :</b> {{ "%.2f"|format(commande[3]) }} €</p>
   </div>
   {% endif %}
 </section>
 {% endblock %}
-

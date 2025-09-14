@@ -17,12 +17,18 @@ def init_db():
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  nom TEXT,
                  prix REAL,
+                 description TEXT,
                  image TEXT)""")
     c.execute("""CREATE TABLE IF NOT EXISTS commandes (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  code TEXT,
                  contenu TEXT,
                  total REAL)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS settings (
+                 id INTEGER PRIMARY KEY,
+                 primary_color TEXT,
+                 secondary_color TEXT)""")
+    c.execute("INSERT OR IGNORE INTO settings (id, primary_color, secondary_color) VALUES (1, '#e0112b', '#111111')")
     conn.commit()
     conn.close()
 
@@ -35,8 +41,8 @@ def generer_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 # --- Config admin ---
-ADMIN_USER = "getpost"
-ADMIN_PASS = "tonght67"
+ADMIN_USER = "admin"
+ADMIN_PASS = "password"
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -66,26 +72,39 @@ def admin():
             try:
                 prix = float(request.form["prix"])
             except ValueError:
-                prix = 0.0  # si l'utilisateur met autre chose qu'un chiffre
+                prix = 0.0
+            description = request.form["description"]
             image = request.files["image"]
             image_filename = None
             if image and image.filename != "":
                 image_filename = secure_filename(image.filename)
                 image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
-            c.execute("INSERT INTO articles (nom, prix, image) VALUES (?, ?, ?)", (nom, prix, image_filename))
+            c.execute("INSERT INTO articles (nom, prix, description, image) VALUES (?, ?, ?, ?)",
+                      (nom, prix, description, image_filename))
+
         elif "supprimer" in request.form:
             id_article = request.form["supprimer"]
             c.execute("DELETE FROM articles WHERE id=?", (id_article,))
+
         elif "chercher" in request.form:
             code = request.form["code"].strip().upper()
             c.execute("SELECT * FROM commandes WHERE code=?", (code,))
             commande = c.fetchone()
+
+        elif "changer_couleurs" in request.form:
+            primary = request.form["primary_color"]
+            secondary = request.form["secondary_color"]
+            c.execute("UPDATE settings SET primary_color=?, secondary_color=? WHERE id=1",
+                      (primary, secondary))
+
         conn.commit()
 
     c.execute("SELECT * FROM articles")
     articles = c.fetchall()
+    c.execute("SELECT primary_color, secondary_color FROM settings WHERE id=1")
+    colors = c.fetchone()
     conn.close()
-    return render_template("admin.html", articles=articles, commande=commande)
+    return render_template("admin.html", articles=articles, commande=commande, colors=colors)
 
 @app.route("/")
 def shop():
@@ -93,8 +112,21 @@ def shop():
     c = conn.cursor()
     c.execute("SELECT * FROM articles")
     articles = c.fetchall()
+    c.execute("SELECT primary_color, secondary_color FROM settings WHERE id=1")
+    colors = c.fetchone()
     conn.close()
-    return render_template("shop.html", articles=articles)
+    return render_template("shop.html", articles=articles, colors=colors)
+
+@app.route("/produit/<int:article_id>")
+def produit(article_id):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM articles WHERE id=?", (article_id,))
+    article = c.fetchone()
+    c.execute("SELECT primary_color, secondary_color FROM settings WHERE id=1")
+    colors = c.fetchone()
+    conn.close()
+    return render_template("produit.html", article=article, colors=colors)
 
 @app.route("/ajouter_panier/<int:article_id>")
 def ajouter_panier(article_id):
@@ -131,3 +163,4 @@ def panier():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+

@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="page-title">🔑 Connexion Admin — EXN SHOP</h1>
-<form method="post" class="form grid1">
-  <input type="text" name="username" placeholder="Utilisateur" required>
-  <input type="password" name="password" placeholder="Mot de passe" required>
-  <button type="submit" class="btn">Se connecter</button>
-</form>
+<div class="login-box">
+  <h1>Connexion Admin</h1>
+  <form method="post" class="form">
+    <input type="text" name="username" placeholder="Identifiant" required>
+    <input type="password" name="password" placeholder="Mot de passe" required>
+    <button type="submit" class="btn">Se connecter</button>
+  </form>
+</div>
 {% endblock %}
 

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="confirm-box">
+<div class="confirm-box">
   <h1>✅ Commande validée</h1>
   <p>Ton code de commande :</p>
   <div class="big-code">{{ code }}</div>
   <p>Total : <b>{{ "%.2f"|format(total) }} €</b></p>
   <a href="{{ url_for('shop') }}" class="btn">Retour à la boutique</a>
-</section>
+</div>
 {% endblock %}

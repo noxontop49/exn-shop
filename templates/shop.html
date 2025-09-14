@@ -1,25 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 <h1 class="page-title">Notre Boutique</h1>
-
 <div class="grid">
-  {% for id, nom, prix, image in articles %}
-  <article class="card">
-    <div class="card-media">
-      {% if image %}
-        <img src="{{ url_for('static', filename='uploads/' ~ image) }}" alt="{{ nom }}">
-      {% else %}
-        <img src="{{ url_for('static', filename='img/placeholder.svg') }}" alt="{{ nom }}">
-      {% endif %}
-    </div>
+  {% for id, nom, prix, description, image in articles %}
+  <a href="{{ url_for('produit', article_id=id) }}" class="card">
+    {% if image %}
+      <img src="{{ url_for('static', filename='uploads/' ~ image) }}" alt="{{ nom }}">
+    {% endif %}
     <div class="card-body">
-      <h3 class="card-title">{{ nom }}</h3>
-      <div class="card-meta">
-        <span class="price">{{ "%.2f"|format(prix) }} €</span>
-        <a class="btn" href="{{ url_for('ajouter_panier', article_id=id) }}">Ajouter</a>
-      </div>
+      <h3>{{ nom }}</h3>
+      <p class="prix">{{ "%.2f"|format(prix) }} €</p>
     </div>
-  </article>
+  </a>
   {% endfor %}
 </div>
 {% endblock %}
+
