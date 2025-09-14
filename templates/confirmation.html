@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="confirm-box">
-  <h1>✅ Commande validée</h1>
-  <p>Ton code de commande :</p>
-  <div class="big-code">{{ code }}</div>
-  <p>Total : <b>{{ "%.2f"|format(total) }} €</b></p>
-  <a href="{{ url_for('shop') }}" class="btn">Retour à la boutique</a>
-</div>
+<h1>✅ Commande confirmée</h1>
+<p>Votre code commande est : <b>{{ code }}</b></p>
+<p>Total : {{ total }} €</p>
+<a href="/" class="btn">Retour à la boutique</a>
 {% endblock %}
+

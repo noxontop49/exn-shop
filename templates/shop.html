@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="page-title">Notre Boutique</h1>
+<h1 class="page-title">Nos Articles</h1>
 <div class="grid">
-  {% for id, nom, prix, description, image in articles %}
-  <a href="{{ url_for('produit', article_id=id) }}" class="card">
-    {% if image %}
-      <img src="{{ url_for('static', filename='uploads/' ~ image) }}" alt="{{ nom }}">
-    {% endif %}
+  {% for article in articles %}
+  <a href="{{ url_for('produit', id=article.id) }}" class="card">
+    <img src="{{ article.image or url_for('static', filename='uploads/default.png') }}" alt="{{ article.nom }}">
     <div class="card-body">
-      <h3>{{ nom }}</h3>
-      <p class="prix">{{ "%.2f"|format(prix) }} €</p>
+      <h3>{{ article.nom }}</h3>
+      <p class="prix">{{ article.prix }} €</p>
     </div>
   </a>
+  {% else %}
+  <p>Aucun produit disponible.</p>
   {% endfor %}
 </div>
 {% endblock %}
+
 

@@ -2,86 +2,34 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{{ title if title else "EXN SHOP" }}</title>
+  <title>EXN Shop</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <style>
     :root {
-      --primary: {{ colors[0] if colors else '#e0112b' }};
-      --secondary: {{ colors[1] if colors else '#111' }};
+      --primary: {{ couleurs.primary }};
+      --secondary: {{ couleurs.secondary }};
     }
   </style>
 </head>
 <body>
-  <!-- NAVBAR -->
-  <header class="navbar">
-    <div class="logo">EXN <span>SHOP</span></div>
-    <nav>
-      <a href="{{ url_for('shop') }}">Boutique</a>
-      <a href="{{ url_for('panier') }}">Panier</a>
-      <a href="{{ url_for('admin') }}">Admin</a>
-    </nav>
-  </header>
-
-  <!-- CONTENU DES PAGES -->
-  <main class="container">
+  <div class="background"></div>
+  <nav class="navbar">
+    <div class="logo">EXN<span>Shop</span></div>
+    <div>
+      <a href="/">Boutique</a>
+      <a href="/panier">Panier</a>
+      {% if session.get("admin") %}
+      <a href="/admin">Admin</a>
+      <a href="/logout">Déconnexion</a>
+      {% else %}
+      <a href="/login">Admin</a>
+      {% endif %}
+    </div>
+  </nav>
+  <main>
     {% block content %}{% endblock %}
   </main>
-
-  <!-- CANVAS CONSTELLATION -->
-  <canvas id="background"></canvas>
-  <script>
-  const canvas = document.getElementById('background');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  let stars = [];
-  for (let i = 0; i < 120; i++) {
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5
-    });
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let s of stars) {
-      s.x += s.vx; s.y += s.vy;
-      if (s.x < 0 || s.x > canvas.width) s.vx *= -1;
-      if (s.y < 0 || s.y > canvas.height) s.vy *= -1;
-
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, 2, 0, Math.PI * 2);
-      ctx.fillStyle = "white";
-      ctx.fill();
-    }
-
-    for (let i = 0; i < stars.length; i++) {
-      for (let j = i+1; j < stars.length; j++) {
-        let dx = stars[i].x - stars[j].x;
-        let dy = stars[i].y - stars[j].y;
-        let dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 120) {
-          ctx.beginPath();
-          ctx.moveTo(stars[i].x, stars[i].y);
-          ctx.lineTo(stars[j].x, stars[j].y);
-          ctx.strokeStyle = "rgba(255,255,255,0.1)";
-          ctx.stroke();
-        }
-      }
-    }
-
-    requestAnimationFrame(animate);
-  }
-  animate();
-
-  window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  });
-  </script>
 </body>
 </html>
+
+

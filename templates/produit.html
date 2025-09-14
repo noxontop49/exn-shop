@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="produit-detail">
-  {% if article[4] %}
-    <img src="{{ url_for('static', filename='uploads/' ~ article[4]) }}" class="produit-img">
-  {% endif %}
-  <h1>{{ article[1] }}</h1>
-  <p class="prix">{{ "%.2f"|format(article[2]) }} €</p>
-  <p class="desc">{{ article[3] }}</p>
-  <a href="{{ url_for('ajouter_panier', article_id=article[0]) }}" class="btn">Ajouter au panier</a>
+  <img src="{{ article.image or url_for('static', filename='uploads/default.png') }}" class="produit-img" alt="{{ article.nom }}">
+  <h1>{{ article.nom }}</h1>
+  <p class="desc">{{ article.description }}</p>
+  <p class="prix">{{ article.prix }} €</p>
+  <a href="{{ url_for('ajouter_panier', id=article.id) }}" class="btn">Ajouter au panier</a>
 </div>
 {% endblock %}

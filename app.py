@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-import os
+import os, random, string
 
 app = Flask(__name__)
 app.secret_key = "supersecret"
@@ -19,100 +19,107 @@ class Article(db.Model):
 
 class Commande(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    utilisateur = db.Column(db.String(100), nullable=False)
-    article = db.Column(db.String(100), nullable=False)
-    quantite = db.Column(db.Integer, default=1)
+    code = db.Column(db.String(10), nullable=False)
+    contenu = db.Column(db.Text, nullable=False)
+    total = db.Column(db.Float, nullable=False)
 
-# --- Config admin ---
+class Theme(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    primary = db.Column(db.String(20), default="#e0112b")
+    secondary = db.Column(db.String(20), default="#111")
+
+# --- Création BDD ---
+if not os.path.exists("shop.db"):
+    with app.app_context():
+        db.create_all()
+        db.session.add(Theme(primary="#e0112b", secondary="#111"))
+        db.session.commit()
+
+# --- Admin ---
 ADMIN_USER = "getpost"
 ADMIN_PASS = "tonght67"
 
+# --- Fonctions utilitaires ---
+def generer_code():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+def get_theme():
+    theme = Theme.query.first()
+    return {"primary": theme.primary, "secondary": theme.secondary} if theme else {"primary": "#e0112b", "secondary": "#111"}
+
 # --- Routes ---
 @app.route("/")
-def index():
+def shop():
     articles = Article.query.all()
-    return render_template("index.html", articles=articles)
+    return render_template("shop.html", articles=articles, couleurs=get_theme())
 
 @app.route("/produit/<int:id>")
 def produit(id):
     article = Article.query.get_or_404(id)
-    return render_template("produit.html", article=article)
+    return render_template("produit.html", article=article, couleurs=get_theme())
+
+@app.route("/ajouter_panier/<int:id>")
+def ajouter_panier(id):
+    panier = session.get("panier", [])
+    panier.append(id)
+    session["panier"] = panier
+    return redirect(url_for("panier"))
+
+@app.route("/panier", methods=["GET", "POST"])
+def panier():
+    panier = session.get("panier", [])
+    items, total = [], 0
+    for art_id in panier:
+        article = Article.query.get(art_id)
+        if article:
+            items.append(article)
+            total += article.prix
+    if request.method == "POST" and items:
+        code = generer_code()
+        contenu = ", ".join([a.nom for a in items])
+        db.session.add(Commande(code=code, contenu=contenu, total=total))
+        db.session.commit()
+        session.pop("panier", None)
+        return render_template("confirmation.html", code=code, total=total, couleurs=get_theme())
+    return render_template("panier.html", items=items, total=total, couleurs=get_theme())
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = request.form["username"]
-        pw = request.form["password"]
-        if user == ADMIN_USER and pw == ADMIN_PASS:
+        if request.form["username"] == ADMIN_USER and request.form["password"] == ADMIN_PASS:
             session["admin"] = True
             return redirect(url_for("admin"))
-    return render_template("login.html")
+    return render_template("login.html", couleurs=get_theme())
 
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
-    return redirect(url_for("index"))
+    return redirect(url_for("shop"))
 
-@app.route("/admin", methods=["GET"])
+@app.route("/admin", methods=["GET", "POST"])
 def admin():
     if not session.get("admin"):
         return redirect(url_for("login"))
 
-    articles = Article.query.all()
-    commandes = Commande.query.all()
+    if request.method == "POST":
+        if "ajouter" in request.form:
+            nom = request.form["nom"]
+            prix = float(request.form["prix"])
+            desc = request.form.get("description")
+            image = request.form.get("image")
+            db.session.add(Article(nom=nom, prix=prix, description=desc, image=image))
+            db.session.commit()
+        elif "supprimer" in request.form:
+            id_article = int(request.form["supprimer"])
+            Article.query.filter_by(id=id_article).delete()
+            db.session.commit()
+        elif "changer_couleurs" in request.form:
+            theme = Theme.query.first()
+            theme.primary = request.form["primary"]
+            theme.secondary = request.form["secondary"]
+            db.session.commit()
 
-    # Couleurs par défaut
-    couleurs = {"primary": "#e0112b", "secondary": "#111"}
-
-    return render_template(
-        "admin.html",
-        articles=articles,
-        commandes=commandes,
-        couleurs=couleurs
-    )
-
-@app.route("/admin/add", methods=["POST"])
-def add_article():
-    if not session.get("admin"):
-        return redirect(url_for("login"))
-
-    nom = request.form["nom"]
-    prix = request.form["prix"]
-    desc = request.form["description"]
-    image = None
-
-    if "image" in request.files:
-        img = request.files["image"]
-        if img.filename:
-            path = os.path.join("static/uploads", img.filename)
-            img.save(path)
-            image = path
-
-    article = Article(nom=nom, prix=prix, description=desc, image=image)
-    db.session.add(article)
-    db.session.commit()
-    return redirect(url_for("admin"))
-
-@app.route("/admin/delete/<int:id>")
-def delete_article(id):
-    if not session.get("admin"):
-        return redirect(url_for("login"))
-    article = Article.query.get_or_404(id)
-    db.session.delete(article)
-    db.session.commit()
-    return redirect(url_for("admin"))
-
-@app.route("/admin/theme", methods=["POST"])
-def admin_theme():
-    if not session.get("admin"):
-        return redirect(url_for("login"))
-    primary = request.form.get("primary")
-    secondary = request.form.get("secondary")
-    # ⚠️ Ici tu pourrais sauvegarder en BDD si tu veux persister les couleurs
-    return redirect(url_for("admin"))
+    return render_template("admin.html", articles=Article.query.all(), commandes=Commande.query.all(), couleurs=get_theme())
 
 if __name__ == "__main__":
-    if not os.path.exists("shop.db"):
-        with app.app_context():
-            db.create_all()
     app.run(debug=True)

@@ -1,26 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="page-title">Votre Panier</h1>
+<h1>🛒 Votre Panier</h1>
+<ul>
+  {% for article in items %}
+  <li>{{ article.nom }} - {{ article.prix }} €</li>
+  {% endfor %}
+</ul>
+<p><strong>Total : {{ total }} €</strong></p>
 {% if items %}
-<table class="table">
-  <thead>
-    <tr><th>Article</th><th class="right">Prix (€)</th></tr>
-  </thead>
-  <tbody>
-    {% for id, nom, prix, description, image in items %}
-    <tr>
-      <td>{{ nom }}</td>
-      <td class="right">{{ "%.2f"|format(prix) }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-<div class="total-line">Total : <b>{{ "%.2f"|format(total) }} €</b></div>
-<form method="post" class="actions">
-  <button type="submit" class="btn">Valider la commande ✅</button>
+<form method="POST">
+  <button type="submit" class="btn">Valider la commande</button>
 </form>
 {% else %}
-<p class="empty">Votre panier est vide.</p>
+<p>Votre panier est vide.</p>
 {% endif %}
 {% endblock %}
-

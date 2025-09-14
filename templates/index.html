@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Nos Produits</h2>
+<div class="grid">
+    {% for article in articles %}
+    <div class="card">
+        <img src="{{ article.image or url_for('static', filename='default.png') }}" alt="{{ article.nom }}">
+        <h3>{{ article.nom }}</h3>
+        <p>{{ article.prix }} €</p>
+        <a href="/produit/{{ article.id }}">Voir plus</a>
+    </div>
+    {% else %}
+    <p>Aucun produit disponible.</p>
+    {% endfor %}
+</div>
+{% endblock %}
