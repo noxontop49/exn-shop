@@ -12,16 +12,8 @@ body {
   min-height: 100vh;
   position: relative;
 }
-
-/* --- CANVAS CONSTELLATION --- */
-#background {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  background: #000;
-}
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--primary); }
 
 /* --- NAVBAR --- */
 .navbar {
@@ -42,9 +34,7 @@ body {
 }
 .logo span { color: #fff; }
 .navbar a {
-  color: #fff;
   margin-left: 20px;
-  text-decoration: none;
   transition: color 0.3s;
 }
 .navbar a:hover { color: var(--primary); }
@@ -141,9 +131,6 @@ body {
 }
 .form input[type=color] { height: 50px; cursor: pointer; }
 
-/* --- CONFIRMATION --- */
-.confirm-box { text-align: center; padding: 50px; }
-.big-code { font-size: 2em; color: var(--primary); text-shadow: 0 0 10px var(--primary); }
 /* --- PAGE LOGIN --- */
 .login-box {
   max-width: 400px;
@@ -180,15 +167,20 @@ body {
 }
 
 /* --- ADMIN PAGE --- */
-.admin-section {
-  background: rgba(25,25,25,0.9);
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
   padding: 20px;
-  margin: 20px 0;
+}
+.admin-card {
+  background: rgba(25,25,25,0.95);
+  padding: 20px;
   border-radius: 10px;
   border: 1px solid var(--primary);
-  box-shadow: 0 0 10px rgba(224,17,43,0.3);
+  box-shadow: 0 0 15px rgba(224,17,43,0.3);
 }
-.admin-section h2 {
+.admin-card h2 {
   margin-bottom: 15px;
   color: var(--primary);
 }

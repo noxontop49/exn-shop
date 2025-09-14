@@ -1,53 +1,49 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import sqlite3, os, random, string
-from werkzeug.utils import secure_filename
+from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
-app.secret_key = "change_this_password"
+app.secret_key = "supersecret"
 
-UPLOAD_FOLDER = "static/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+# --- Config BDD ---
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///shop.db"
+db = SQLAlchemy(app)
 
-# --- Initialisation base de données ---
-def init_db():
-    conn = sqlite3.connect("shop.db")
-    c = conn.cursor()
-    c.execute("""CREATE TABLE IF NOT EXISTS articles (
-                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 nom TEXT,
-                 prix REAL,
-                 description TEXT,
-                 image TEXT)""")
-    c.execute("""CREATE TABLE IF NOT EXISTS commandes (
-                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 code TEXT,
-                 contenu TEXT,
-                 total REAL)""")
-    c.execute("""CREATE TABLE IF NOT EXISTS settings (
-                 id INTEGER PRIMARY KEY,
-                 primary_color TEXT,
-                 secondary_color TEXT)""")
-    c.execute("INSERT OR IGNORE INTO settings (id, primary_color, secondary_color) VALUES (1, '#e0112b', '#111111')")
-    conn.commit()
-    conn.close()
+# --- Modèles ---
+class Article(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nom = db.Column(db.String(100), nullable=False)
+    prix = db.Column(db.Float, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    image = db.Column(db.String(200), nullable=True)
 
-init_db()
-
-def get_db():
-    return sqlite3.connect("shop.db")
-
-def generer_code():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+class Commande(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    utilisateur = db.Column(db.String(100), nullable=False)
+    article = db.Column(db.String(100), nullable=False)
+    quantite = db.Column(db.Integer, default=1)
 
 # --- Config admin ---
 ADMIN_USER = "getpost"
 ADMIN_PASS = "tonght67"
 
+# --- Routes ---
+@app.route("/")
+def index():
+    articles = Article.query.all()
+    return render_template("index.html", articles=articles)
+
+@app.route("/produit/<int:id>")
+def produit(id):
+    article = Article.query.get_or_404(id)
+    return render_template("produit.html", article=article)
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if request.form["username"] == ADMIN_USER and request.form["password"] == ADMIN_PASS:
+        user = request.form["username"]
+        pw = request.form["password"]
+        if user == ADMIN_USER and pw == ADMIN_PASS:
             session["admin"] = True
             return redirect(url_for("admin"))
     return render_template("login.html")
@@ -55,112 +51,68 @@ def login():
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
-    return redirect(url_for("login"))
+    return redirect(url_for("index"))
 
-@app.route("/admin", methods=["GET", "POST"])
+@app.route("/admin", methods=["GET"])
 def admin():
     if not session.get("admin"):
         return redirect(url_for("login"))
 
-    conn = get_db()
-    c = conn.cursor()
-    commande = None
+    articles = Article.query.all()
+    commandes = Commande.query.all()
 
-    if request.method == "POST":
-        if "ajouter" in request.form:
-            nom = request.form["nom"]
-            try:
-                prix = float(request.form["prix"])
-            except ValueError:
-                prix = 0.0
-            description = request.form["description"]
-            image = request.files["image"]
-            image_filename = None
-            if image and image.filename != "":
-                image_filename = secure_filename(image.filename)
-                image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
-            c.execute("INSERT INTO articles (nom, prix, description, image) VALUES (?, ?, ?, ?)",
-                      (nom, prix, description, image_filename))
+    # Couleurs par défaut
+    couleurs = {"primary": "#e0112b", "secondary": "#111"}
 
-        elif "supprimer" in request.form:
-            id_article = request.form["supprimer"]
-            c.execute("DELETE FROM articles WHERE id=?", (id_article,))
+    return render_template(
+        "admin.html",
+        articles=articles,
+        commandes=commandes,
+        couleurs=couleurs
+    )
 
-        elif "chercher" in request.form:
-            code = request.form["code"].strip().upper()
-            c.execute("SELECT * FROM commandes WHERE code=?", (code,))
-            commande = c.fetchone()
+@app.route("/admin/add", methods=["POST"])
+def add_article():
+    if not session.get("admin"):
+        return redirect(url_for("login"))
 
-        elif "changer_couleurs" in request.form:
-            primary = request.form["primary_color"]
-            secondary = request.form["secondary_color"]
-            c.execute("UPDATE settings SET primary_color=?, secondary_color=? WHERE id=1",
-                      (primary, secondary))
+    nom = request.form["nom"]
+    prix = request.form["prix"]
+    desc = request.form["description"]
+    image = None
 
-        conn.commit()
+    if "image" in request.files:
+        img = request.files["image"]
+        if img.filename:
+            path = os.path.join("static/uploads", img.filename)
+            img.save(path)
+            image = path
 
-    c.execute("SELECT * FROM articles")
-    articles = c.fetchall()
-    c.execute("SELECT primary_color, secondary_color FROM settings WHERE id=1")
-    colors = c.fetchone()
-    conn.close()
-    return render_template("admin.html", articles=articles, commande=commande, colors=colors)
+    article = Article(nom=nom, prix=prix, description=desc, image=image)
+    db.session.add(article)
+    db.session.commit()
+    return redirect(url_for("admin"))
 
-@app.route("/")
-def shop():
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("SELECT * FROM articles")
-    articles = c.fetchall()
-    c.execute("SELECT primary_color, secondary_color FROM settings WHERE id=1")
-    colors = c.fetchone()
-    conn.close()
-    return render_template("shop.html", articles=articles, colors=colors)
+@app.route("/admin/delete/<int:id>")
+def delete_article(id):
+    if not session.get("admin"):
+        return redirect(url_for("login"))
+    article = Article.query.get_or_404(id)
+    db.session.delete(article)
+    db.session.commit()
+    return redirect(url_for("admin"))
 
-@app.route("/produit/<int:article_id>")
-def produit(article_id):
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("SELECT * FROM articles WHERE id=?", (article_id,))
-    article = c.fetchone()
-    c.execute("SELECT primary_color, secondary_color FROM settings WHERE id=1")
-    colors = c.fetchone()
-    conn.close()
-    return render_template("produit.html", article=article, colors=colors)
-
-@app.route("/ajouter_panier/<int:article_id>")
-def ajouter_panier(article_id):
-    panier = session.get("panier", [])
-    panier.append(article_id)
-    session["panier"] = panier
-    return redirect(url_for("shop"))
-
-@app.route("/panier", methods=["GET", "POST"])
-def panier():
-    conn = get_db()
-    c = conn.cursor()
-    panier = session.get("panier", [])
-    items, total = [], 0
-
-    for art_id in panier:
-        c.execute("SELECT * FROM articles WHERE id=?", (art_id,))
-        art = c.fetchone()
-        if art:
-            items.append(art)
-            total += art[2]
-
-    if request.method == "POST" and items:
-        code = generer_code()
-        contenu = ", ".join([i[1] for i in items])
-        c.execute("INSERT INTO commandes (code, contenu, total) VALUES (?, ?, ?)", (code, contenu, total))
-        conn.commit()
-        conn.close()
-        session.pop("panier", None)
-        return render_template("confirmation.html", code=code, total=total)
-
-    conn.close()
-    return render_template("panier.html", items=items, total=total)
+@app.route("/admin/theme", methods=["POST"])
+def admin_theme():
+    if not session.get("admin"):
+        return redirect(url_for("login"))
+    primary = request.form.get("primary")
+    secondary = request.form.get("secondary")
+    # ⚠️ Ici tu pourrais sauvegarder en BDD si tu veux persister les couleurs
+    return redirect(url_for("admin"))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
+    if not os.path.exists("shop.db"):
+        with app.app_context():
+            db.create_all()
+    app.run(debug=True)

@@ -1,65 +1,73 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h1 class="page-title">Panel Admin</h1>
+<h1 class="page-title">Panel Administrateur</h1>
 
-<!-- Formulaire ajout produit -->
-<section class="admin-section">
-  <h2>➕ Ajouter un article</h2>
-  <form method="post" enctype="multipart/form-data" class="form grid1">
-    <input type="text" name="nom" placeholder="Nom" required>
-    <input type="number" name="prix" placeholder="Prix (€)" step="0.01" required>
-    <textarea name="description" placeholder="Description du produit"></textarea>
-    <input type="file" name="image">
-    <button type="submit" name="ajouter" class="btn">Ajouter</button>
-  </form>
-</section>
+<div class="admin-grid">
 
-<!-- Changer couleurs -->
-<section class="admin-section">
-  <h2>🎨 Paramètres de style</h2>
-  <form method="post" class="form grid2">
-    <label>Couleur principale</label>
-    <input type="color" name="primary_color" value="{{ colors[0] }}">
-    <label>Couleur secondaire</label>
-    <input type="color" name="secondary_color" value="{{ colors[1] }}">
-    <button type="submit" name="changer_couleurs" class="btn">Mettre à jour</button>
-  </form>
-</section>
+  <!-- Ajouter un article -->
+  <div class="admin-card">
+    <h2>Ajouter un article</h2>
+    <form method="POST" action="/admin/add" enctype="multipart/form-data" class="form">
+      <input type="text" name="nom" placeholder="Nom de l'article" required>
+      <input type="number" name="prix" placeholder="Prix (€)" required>
+      <textarea name="description" placeholder="Description" required></textarea>
+      <input type="file" name="image" accept="image/*">
+      <button type="submit" class="btn">Ajouter</button>
+    </form>
+  </div>
 
-<!-- Liste des articles -->
-<section class="admin-section">
-  <h2>📦 Articles existants</h2>
-  <table class="table">
-    <thead><tr><th>Nom</th><th>Prix</th><th>Action</th></tr></thead>
-    <tbody>
-      {% for id, nom, prix, description, image in articles %}
+  <!-- Liste des articles -->
+  <div class="admin-card">
+    <h2>Articles existants</h2>
+    <table class="table">
       <tr>
-        <td>{{ nom }}</td>
-        <td>{{ "%.2f"|format(prix) }} €</td>
+        <th>Nom</th>
+        <th>Prix</th>
+        <th>Action</th>
+      </tr>
+      {% for article in articles %}
+      <tr>
+        <td>{{ article.nom }}</td>
+        <td>{{ article.prix }} €</td>
         <td>
-          <form method="post">
-            <button type="submit" name="supprimer" value="{{ id }}" class="btn danger">Supprimer</button>
-          </form>
+          <a href="/admin/delete/{{ article.id }}" class="btn danger">Supprimer</a>
         </td>
       </tr>
       {% endfor %}
-    </tbody>
-  </table>
-</section>
-
-<!-- Recherche commande -->
-<section class="admin-section">
-  <h2>🔎 Rechercher une commande</h2>
-  <form method="post" class="form grid1">
-    <input type="text" name="code" placeholder="Code commande" required>
-    <button type="submit" name="chercher" class="btn">Rechercher</button>
-  </form>
-  {% if commande %}
-  <div class="commande-box">
-    <p><b>Code :</b> {{ commande[1] }}</p>
-    <p><b>Contenu :</b> {{ commande[2] }}</p>
-    <p><b>Total :</b> {{ "%.2f"|format(commande[3]) }} €</p>
+    </table>
   </div>
-  {% endif %}
-</section>
+
+  <!-- Commandes -->
+  <div class="admin-card">
+    <h2>Commandes</h2>
+    {% if commandes %}
+      {% for c in commandes %}
+        <div class="commande-box">
+          <p><b>Utilisateur :</b> {{ c.utilisateur }}</p>
+          <p><b>Article :</b> {{ c.article }}</p>
+          <p><b>Quantité :</b> {{ c.quantite }}</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Aucune commande pour le moment.</p>
+    {% endif %}
+  </div>
+
+  <!-- Thème -->
+  <div class="admin-card">
+    <h2>Personnalisation du thème</h2>
+    <form method="POST" action="/admin/theme" class="form">
+      <label>Couleur principale :</label>
+      <input type="color" name="primary" value="{{ couleurs.primary }}">
+      <label>Couleur secondaire :</label>
+      <input type="color" name="secondary" value="{{ couleurs.secondary }}">
+      <button type="submit" class="btn">Mettre à jour</button>
+    </form>
+  </div>
+
+</div>
 {% endblock %}
+
+
+
