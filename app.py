@@ -74,6 +74,7 @@ def panier():
         if article:
             items.append(article)
             total += article.prix
+
     if request.method == "POST" and items:
         code = generer_code()
         contenu = ", ".join([a.nom for a in items])
@@ -81,6 +82,7 @@ def panier():
         db.session.commit()
         session.pop("panier", None)
         return render_template("confirmation.html", code=code, total=total, couleurs=get_theme())
+
     return render_template("panier.html", items=items, total=total, couleurs=get_theme())
 
 @app.route("/login", methods=["GET", "POST"])
@@ -121,5 +123,13 @@ def admin():
 
     return render_template("admin.html", articles=Article.query.all(), commandes=Commande.query.all(), couleurs=get_theme())
 
+@app.route("/commande", methods=["POST"])
+def commande():
+    code = request.form["code"]
+    commande = Commande.query.filter_by(code=code).first()
+    return render_template("commande_resultat.html", commande=commande, couleurs=get_theme())
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+

@@ -12,6 +12,7 @@
       <button type="submit" name="ajouter" class="btn">Ajouter</button>
     </form>
   </div>
+
   <div class="admin-card">
     <h2>🎨 Changer les couleurs</h2>
     <form method="POST" class="form">
@@ -20,6 +21,7 @@
       <button type="submit" name="changer_couleurs" class="btn">Mettre à jour</button>
     </form>
   </div>
+
   <div class="admin-card">
     <h2>📦 Articles existants</h2>
     <ul>
@@ -31,6 +33,14 @@
       </li>
       {% endfor %}
     </ul>
+  </div>
+
+  <div class="admin-card">
+    <h2>🔍 Rechercher une commande</h2>
+    <form method="POST" action="{{ url_for('commande') }}" class="form">
+      <input type="text" name="code" placeholder="Entrez le code de commande" required>
+      <button type="submit" class="btn">Voir la commande</button>
+    </form>
   </div>
 </div>
 {% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="produit-detail">
+  {% if commande %}
+    <h1>📦 Commande trouvée</h1>
+    <p><b>Code :</b> {{ commande.code }}</p>
+    <p><b>Articles :</b> {{ commande.contenu }}</p>
+    <p><b>Total :</b> {{ commande.total }} €</p>
+  {% else %}
+    <h1>❌ Commande introuvable</h1>
+    <p>Aucune commande ne correspond à ce code.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -3,194 +3,282 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Poppins', 'Orbitron', sans-serif;
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--secondary, #0a0a0a);
-  color: #fff;
-  overflow-x: hidden;
+  background: #0a0a0a;
+  color: #f5f5f5;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* 🌌 Fond constellation animé */
-.background {
+/* 🌌 CANVAS CONSTELLATIONS */
+canvas#stars, canvas#constellations {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: black url("https://www.transparenttextures.com/patterns/stardust.png");
-  animation: moveStars 200s linear infinite;
-  z-index: -1;
-  opacity: 0.4;
+  z-index: -2;
 }
-@keyframes moveStars {
-  from { background-position: 0 0; }
-  to { background-position: 10000px 5000px; }
+
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 10, 0.9);
+  z-index: -1;
 }
 
 /* NAVBAR */
 .navbar {
-  background: rgba(0,0,0,0.8);
-  padding: 15px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid var(--primary, #e0112b);
+  padding: 20px 40px;
+  background: rgba(15, 15, 15, 0.95);
+  border-bottom: 2px solid #e0112b;
+  box-shadow: 0 0 20px rgba(224, 17, 43, 0.6);
   position: sticky;
   top: 0;
-  z-index: 10;
-  backdrop-filter: blur(6px);
+  z-index: 100;
 }
 .logo {
-  font-size: 1.8em;
-  font-weight: bold;
-  color: var(--primary, #e0112b);
+  font-size: 2em;
+  font-weight: 700;
+  color: #e0112b;
+  text-shadow: 0 0 10px #e0112b;
 }
 .logo span { color: #fff; }
 .navbar a {
-  margin-left: 20px;
+  margin: 0 15px;
+  font-size: 1em;
+  font-weight: 500;
+  color: #f5f5f5;
   transition: 0.3s;
-  font-weight: bold;
 }
-.navbar a:hover { color: var(--primary, #e0112b); text-shadow: 0 0 5px var(--primary); }
+.navbar a:hover {
+  color: #e0112b;
+  text-shadow: 0 0 8px #e0112b;
+}
 
 /* TITRES */
 .page-title {
+  margin: 50px 0 30px;
   text-align: center;
-  margin: 40px 0;
-  font-size: 2.4em;
-  color: var(--primary, #e0112b);
-  text-shadow: 0 0 15px var(--primary, #e0112b);
+  font-size: 2.5em;
+  color: #e0112b;
+  text-shadow: 0 0 15px crimson, 0 0 30px rgba(255,0,0,0.5);
 }
 
 /* 🛍️ GRILLE PRODUITS */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 25px;
-  padding: 0 30px 40px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 30px;
+  padding: 20px 40px 60px;
 }
 .card {
-  background: rgba(20, 20, 20, 0.9);
-  border: 2px solid var(--primary, #e0112b);
+  background: rgba(25,25,25,0.95);
+  border: 2px solid #e0112b;
   border-radius: 15px;
   overflow: hidden;
-  text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
   cursor: pointer;
-  box-shadow: 0 0 15px rgba(224,17,43,0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 0 15px rgba(224,17,43,0.4);
 }
 .card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 0 25px var(--primary, #e0112b);
+  box-shadow: 0 0 25px crimson;
 }
 .card img {
   width: 100%;
-  aspect-ratio: 1/1;
+  height: 200px;
   object-fit: cover;
 }
-.card-body { padding: 15px; }
-.card-body h3 { margin-bottom: 8px; }
-.prix { color: var(--primary, #e0112b); font-weight: bold; }
+.card-body {
+  padding: 20px;
+}
+.card-body h3 {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  color: #fff;
+}
+.prix {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #e0112b;
+  text-shadow: 0 0 6px crimson;
+}
 
 /* 📄 PAGE PRODUIT */
 .produit-detail {
-  max-width: 700px;
-  margin: 40px auto;
+  max-width: 800px;
+  margin: 50px auto;
+  background: rgba(20, 20, 20, 0.9);
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 0 25px rgba(224,17,43,0.5);
   text-align: center;
-  padding: 20px;
-  background: rgba(20,20,20,0.85);
-  border-radius: 12px;
-  border: 2px solid var(--primary, #e0112b);
-  box-shadow: 0 0 20px rgba(224,17,43,0.4);
 }
 .produit-img {
   max-width: 100%;
   border-radius: 12px;
   margin-bottom: 20px;
 }
-.desc { margin: 15px 0; line-height: 1.6; }
+.desc {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
 
 /* 🛒 PANIER */
-ul { list-style: none; padding: 0; }
-ul li {
-  padding: 8px;
-  border-bottom: 1px solid #444;
+.panier-box {
+  max-width: 600px;
+  margin: 30px auto;
+  background: rgba(20,20,20,0.95);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(224,17,43,0.5);
 }
-ul li:last-child { border-bottom: none; }
+.panier-box ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+.panier-box ul li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+}
+.panier-box strong {
+  color: #e0112b;
+  text-shadow: 0 0 6px crimson;
+}
 
 /* BUTTONS */
 .btn {
   display: inline-block;
-  padding: 10px 16px;
-  background: var(--primary, #e0112b);
+  padding: 12px 20px;
+  background: #e0112b;
   color: #fff;
   border-radius: 8px;
-  text-decoration: none;
   font-weight: bold;
-  transition: 0.3s;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(224,17,43,0.6);
 }
-.btn:hover { filter: brightness(1.2); }
-.btn.danger { background: darkred; }
+.btn:hover {
+  background: #ff1f3d;
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255,30,50,0.8);
+}
+.btn.danger {
+  background: darkred;
+}
 
 /* FORMULAIRES */
-.form input, .form textarea, .form button {
-  margin: 8px 0;
-  padding: 12px;
+.form input, .form textarea {
   width: 100%;
-  border: none;
-  border-radius: 6px;
-  background: #111;
+  padding: 12px;
+  margin-top: 10px;
+  background: #0d0d0d;
+  border: 1px solid #333;
   color: #fff;
+  border-radius: 8px;
+  transition: 0.3s;
 }
 .form input:focus, .form textarea:focus {
-  outline: 2px solid var(--primary, #e0112b);
+  border-color: #e0112b;
+  box-shadow: 0 0 10px crimson;
 }
-.form input[type=color] { height: 50px; cursor: pointer; }
+.form button {
+  margin-top: 15px;
+}
 
-/* 🔑 PAGE LOGIN */
-.login-box {
-  max-width: 400px;
-  margin: 100px auto;
-  padding: 40px;
-  background: rgba(20,20,20,0.95);
-  border: 2px solid var(--primary, #e0112b);
-  border-radius: 12px;
-  box-shadow: 0 0 25px rgba(224,17,43,0.5);
+/* 🔑 LOGIN */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 80px);
+}
+.login-card {
+  background: rgba(15, 15, 15, 0.85);
+  border: 2px solid #e0112b;
+  padding: 50px 40px;
+  border-radius: 15px;
+  max-width: 420px;
   text-align: center;
+  box-shadow: 0 0 25px rgba(224,17,43,0.6), inset 0 0 20px rgba(224,17,43,0.2);
 }
-.login-box h1 {
+.login-card h1 {
+  font-size: 2.2em;
   margin-bottom: 25px;
-  color: var(--primary, #e0112b);
-  text-shadow: 0 0 10px var(--primary, #e0112b);
+  color: #e0112b;
+  text-shadow: 0 0 15px crimson, 0 0 30px rgba(255,0,0,0.7);
+  font-family: 'Orbitron', sans-serif;
+}
+.login-form input {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #0d0d0d;
+  color: #fff;
+  font-size: 1em;
+  margin-bottom: 20px;
+  transition: 0.3s;
+}
+.login-form input:focus {
+  border-color: #e0112b;
+  box-shadow: 0 0 10px crimson;
+}
+.login-form .btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1em;
+  border-radius: 8px;
+  background: #e0112b;
+  box-shadow: 0 0 15px rgba(224,17,43,0.8);
+}
+.login-form .btn:hover {
+  background: #ff1f3d;
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255,30,50,0.8);
 }
 
-/* ⚙️ ADMIN PAGE */
+/* ⚙️ ADMIN DASHBOARD */
 .admin-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
-  padding: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 25px;
+  padding: 30px;
 }
 .admin-card {
-  background: rgba(25,25,25,0.95);
-  padding: 20px;
+  background: rgba(20,20,20,0.95);
+  padding: 25px;
   border-radius: 12px;
-  border: 1px solid var(--primary, #e0112b);
-  box-shadow: 0 0 20px rgba(224,17,43,0.4);
+  border: 2px solid #e0112b;
+  box-shadow: 0 0 20px rgba(224,17,43,0.5);
 }
 .admin-card h2 {
   margin-bottom: 15px;
-  color: var(--primary, #e0112b);
+  color: #e0112b;
+  text-shadow: 0 0 10px crimson;
 }
-.commande-box {
-  margin-top: 15px;
-  padding: 15px;
+.admin-card form input, 
+.admin-card form textarea {
   background: #111;
-  border: 1px solid var(--primary, #e0112b);
-  border-radius: 8px;
+  border: 1px solid #333;
+  color: #fff;
 }
-
-
+.admin-card form input:focus, 
+.admin-card form textarea:focus {
+  border-color: #e0112b;
+  box-shadow: 0 0 8px crimson;
+}

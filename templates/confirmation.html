@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>✅ Commande confirmée</h1>
-<p>Votre code commande est : <b>{{ code }}</b></p>
-<p>Total : {{ total }} €</p>
-<a href="/" class="btn">Retour à la boutique</a>
+<div class="produit-detail">
+  <h1>✅ Commande confirmée</h1>
+  <p>Votre code commande est : <b>{{ code }}</b></p>
+  <p>Total : {{ total }} €</p>
+  <p>💡 Conservez ce code et envoyez-le à l’admin.</p>
+  <a href="/" class="btn">Retour à la boutique</a>
+</div>
 {% endblock %}
-
