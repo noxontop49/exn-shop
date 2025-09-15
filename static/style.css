@@ -54,7 +54,7 @@ nav a:hover {
   text-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary);
 }
 
-/* ====== GRILLE ====== */
+/* ====== GRILLES ====== */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -62,41 +62,45 @@ nav a:hover {
   margin: 30px;
 }
 
-/* ====== CARTE PRODUIT ====== */
-.card {
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  overflow: hidden;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.grid-products {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+/* ====== PRODUITS ====== */
+.product-card {
   text-align: center;
-  box-shadow: 0 0 15px rgba(255,0,60,0.5);
-  transition: 0.3s;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
-}
-
-.card img {
+.product-card img {
   width: 100%;
-  aspect-ratio: 1/1;
-  object-fit: cover;
-  border-bottom: 2px solid var(--primary);
+  height: auto;
+  object-fit: contain;
+  display: block;
+  border: none;
+  box-shadow: none;
 }
 
-.card-body {
-  padding: 15px;
+.product-info {
+  margin-top: 12px;
 }
 
-.card-body h3 {
+.product-info h3 {
+  color: #000;
+  font-size: 1rem;
   margin-bottom: 5px;
-  color: var(--text-light);
 }
 
-.card-body .prix {
-  font-size: 1.2rem;
-  color: var(--primary);
-  text-shadow: 0 0 6px var(--primary);
+.product-info .prix {
+  color: #000;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 /* ====== BOUTONS ====== */
@@ -202,4 +206,50 @@ nav a:hover {
   text-shadow: 0 0 10px var(--primary);
 }
 
+/* ====== CONFIRMATION ====== */
+.confirmation {
+  text-align: center;
+  margin: 50px auto;
+  padding: 30px;
+  width: 60%;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 15px rgba(255,0,60,0.6);
+}
 
+.confirmation .code {
+  font-size: 2rem;
+  color: var(--primary);
+  text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+}
+
+/* ====== LOGIN ====== */
+.login-box {
+  width: 350px;
+  margin: auto;
+  padding: 25px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 20px rgba(255,0,60,0.5);
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: var(--border-radius);
+  border: none;
+  outline: none;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* ====== RÉSULTAT COMMANDE ====== */
+.commande-box {
+  margin: auto;
+  width: 60%;
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 15px rgba(255,0,60,0.6);
+  text-align: center;
+}
