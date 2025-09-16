@@ -1,17 +1,26 @@
+import os
+import random, string
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-import os, random, string
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = "supersecret"
+app.secret_key = os.environ.get("SECRET_KEY", "supersecret")
 
-# --- Config BDD ---
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///shop.db"
+# ---------- DB CONFIG (SQLite en local / PostgreSQL en ligne) ----------
+db_url = os.environ.get("DATABASE_URL", "sqlite:///shop.db")
+# compatibilité Heroku/Render: postgres:// -> postgresql+psycopg2://
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Dossier upload images (⚠ sur Render gratuit ça n'est pas persistant)
 app.config["UPLOAD_FOLDER"] = "static/images"
+
 db = SQLAlchemy(app)
 
-# --- Modèles ---
+# ---------- Modèles ----------
 class Categorie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100), nullable=False, unique=True)
@@ -36,18 +45,18 @@ class Theme(db.Model):
     primary = db.Column(db.String(20), default="#ff003c")
     secondary = db.Column(db.String(20), default="#0a0a0a")
 
-# --- Création BDD ---
-if not os.path.exists("shop.db"):
-    with app.app_context():
-        db.create_all()
+# ---------- Init DB au démarrage (crée les tables si absentes) ----------
+with app.app_context():
+    db.create_all()
+    if not Theme.query.first():
         db.session.add(Theme(primary="#ff003c", secondary="#0a0a0a"))
         db.session.commit()
 
-# --- Admin ---
+# ---------- Admin credentials ----------
 ADMIN_USER = "getpost"
 ADMIN_PASS = "tonght67"
 
-# --- Utils ---
+# ---------- Utils ----------
 def generer_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
@@ -55,7 +64,7 @@ def get_theme():
     t = Theme.query.first()
     return {"primary": t.primary, "secondary": t.secondary} if t else {"primary": "#ff003c", "secondary": "#0a0a0a"}
 
-# --- Routes ---
+# ---------- Routes ----------
 @app.route("/")
 def home():
     categories = Categorie.query.all()
@@ -127,9 +136,9 @@ def admin():
             image_filename = None
             if image_file and image_file.filename != "":
                 try:
+                    from pathlib import Path
+                    Path(app.config["UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
                     filename = secure_filename(image_file.filename)
-                    if not os.path.exists(app.config["UPLOAD_FOLDER"]):
-                        os.makedirs(app.config["UPLOAD_FOLDER"])
                     image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
                     image_file.save(image_path)
                     image_filename = f"/static/images/{filename}"
@@ -177,8 +186,8 @@ def commande():
     return render_template("commande_resultat.html", commande=commande, couleurs=get_theme())
 
 if __name__ == "__main__":
-    if not os.path.exists(app.config["UPLOAD_FOLDER"]):
-        os.makedirs(app.config["UPLOAD_FOLDER"])
+    # En local seulement (Render lancera gunicorn)
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
     app.run(debug=True)
 
 
