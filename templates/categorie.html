@@ -1,6 +1,6 @@
 ﻿{% extends 'base.html' %}
 {% block content %}
-<h1 class="title">Tous les produits</h1>
+<h1 class="title">Categorie : {{ categorie['nom'] if categorie else 'Inconnue' }}</h1>
 <div class="grid">
   {% for p in produits %}
   <article class="card">
@@ -18,7 +18,7 @@
     </div>
   </article>
   {% else %}
-  <p>Aucun produit pour le moment.</p>
+  <p>Aucun produit dans cette categorie.</p>
   {% endfor %}
 </div>
 {% endblock %}

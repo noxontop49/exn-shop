@@ -1,18 +1,22 @@
-{% extends "base.html" %}
+﻿{% extends 'base.html' %}
 {% block content %}
-<div class="produit-page">
-  <div class="produit-card">
-    {% if article.image %}
-      <img src="{{ article.image }}" alt="{{ article.nom }}">
+<section class="product-detail glass">
+  <div class="left">
+    {% if produit['image'] %}
+      <img src="{{ url_for('static', filename=produit['image']) }}" alt="{{ produit['nom'] }}">
+    {% else %}
+      <img src="{{ url_for('static', filename='placeholder.svg') }}" alt="{{ produit['nom'] }}">
     {% endif %}
-    <div class="produit-body">
-      <h2>{{ article.nom }}</h2>
-      <p class="prix">{{ article.prix }} €</p>
-      {% if article.description %}
-        <p>{{ article.description }}</p>
-      {% endif %}
-      <a href="{{ url_for('ajouter_panier', id=article.id) }}" class="btn">Ajouter au panier</a>
+  </div>
+  <div class="right">
+    <h1>{{ produit['nom'] }}</h1>
+    <p class="desc">{{ produit['description'] or '' }}</p>
+    <div class="buy">
+      <span class="price">{{ '{:.2f}'.format(produit['prix']) }}</span>
+      <form method="POST" action="{{ url_for('ajouter_panier', prod_id=produit['id']) }}">
+        <button class="btn">Ajouter au panier</button>
+      </form>
     </div>
   </div>
-</div>
+</section>
 {% endblock %}

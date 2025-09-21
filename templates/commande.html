@@ -1,0 +1,15 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<section class="order glass">
+  {% if code %}
+    <h1>Commande validee</h1>
+    <p>Votre numero de commande :</p>
+    <div class="order-code">{{ code }}</div>
+    <p>Articles : {{ items|join(', ') }}</p>
+    <p>Total : <strong>{{ '{:.2f}'.format(total) }}</strong></p>
+  {% else %}
+    <h1>Commande introuvable</h1>
+    <p>Verifiez le code et reessayez.</p>
+  {% endif %}
+</section>
+{% endblock %}

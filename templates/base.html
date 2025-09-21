@@ -1,31 +1,33 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <title>EXN Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <header>
-    <h1 class="logo">EXN <span>Shop</span></h1>
+  <canvas id="bg"></canvas>
+  <header class="topbar">
+    <div class="brand">EXN <span>SHOP</span></div>
     <nav>
-      <a href="/">Catégories</a>
-      <a href="/panier">Panier</a>
-      {% if session.get("admin") %}
-        <a href="/admin">Admin</a>
-        <a href="/logout">Déconnexion</a>
+      <a href="{{ url_for('index') }}">Accueil</a>
+      {% for c in nav_categories %}
+        <a href="{{ url_for('categorie', cat_id=c['id']) }}">{{ c['nom'] }}</a>
+      {% endfor %}
+      <a href="{{ url_for('panier') }}">Panier</a>
+      {% if session.get('admin') %}
+        <a href="{{ url_for('admin') }}">Admin</a>
+        <a href="{{ url_for('deconnexion') }}">Deconnexion</a>
       {% else %}
-        <a href="/login">Connexion</a>
+        <a href="{{ url_for('connexion') }}">Connexion</a>
       {% endif %}
     </nav>
   </header>
-
-  <main>
+  <main class="container">
     {% block content %}{% endblock %}
   </main>
+  <script src="{{ url_for('static', filename='stars.js') }}"></script>
 </body>
 </html>
-
-
-
-

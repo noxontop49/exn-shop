@@ -1,26 +1,34 @@
-{% extends "base.html" %}
+﻿{% extends 'base.html' %}
 {% block content %}
-<h1 class="page-title">🛒 Mon Panier</h1>
-
-<div class="panier-box">
-  {% if items %}
-    <ul>
-      {% for article in items %}
-      <li>
-        <span>{{ article.nom }}</span>
-        <span class="prix">{{ article.prix }} €</span>
-      </li>
-      {% endfor %}
-    </ul>
-
-    <h3>Total : <span class="prix">{{ total }} €</span></h3>
-
-    <form method="POST">
-      <button type="submit" class="btn">Valider la commande</button>
-    </form>
-  {% else %}
-    <p>Votre panier est vide.</p>
-  {% endif %}
+<h1 class="title">Votre panier</h1>
+{% if produits %}
+<div class="cart">
+  {% for p in produits %}
+  <div class="cart-item glass">
+    <div class="ci-left">
+      {% if p['image'] %}
+        <img src="{{ url_for('static', filename=p['image']) }}" alt="{{ p['nom'] }}">
+      {% else %}
+        <img src="{{ url_for('static', filename='placeholder.svg') }}" alt="{{ p['nom'] }}">
+      {% endif %}
+      <div>
+        <div class="ci-name">{{ p['nom'] }}</div>
+        <div class="ci-price">{{ '{:.2f}'.format(p['prix']) }}</div>
+      </div>
+    </div>
+    <a class="link danger" href="{{ url_for('supprimer_panier', prod_id=p['id']) }}">Supprimer</a>
+  </div>
+  {% endfor %}
 </div>
+<div class="cart-total glass">
+  <div>Total : <strong>{{ '{:.2f}'.format(total) }}</strong></div>
+  <form method="POST" action="{{ url_for('valider_commande') }}">
+    <input type="email" name="email" placeholder="Votre email" required>
+    <button class="btn">Valider la commande</button>
+  </form>
+  <a class="link" href="{{ url_for('vider_panier') }}">Vider le panier</a>
+</div>
+{% else %}
+<p>Votre panier est vide.</p>
+{% endif %}
 {% endblock %}
-

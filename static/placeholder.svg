@@ -1,0 +1,11 @@
+﻿<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'>
+  <defs>
+    <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0%' stop-color='#1a1a22'/>
+      <stop offset='100%' stop-color='#0b0b0d'/>
+    </linearGradient>
+  </defs>
+  <rect width='100%' height='100%' fill='url(#g)'/>
+  <circle cx='300' cy='300' r='180' fill='none' stroke='#ff1e42' stroke-width='6' opacity='.6'/>
+  <text x='50%' y='52%' text-anchor='middle' font-size='28' font-family='Montserrat' fill='#e9e9ef'>Image</text>
+</svg>
